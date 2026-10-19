@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bendita Integración · Artefacto Bloque A</title>
+<style>
+:root{--bg:#f4f1e9;--ink:#242b26;--panel:#fffefa;--line:#d8d9cf;--yellow:#edcb48;--orange:#a94b28;--green:#2f684b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,sans-serif}header{background:#202421;color:#fff;padding:26px max(20px,calc((100vw - 1180px)/2))}header h1{margin:0;font-size:clamp(25px,4vw,38px)}header p{color:#d3d5ce;margin-bottom:0}.wrap{max-width:1180px;margin:auto;padding:22px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}h2{margin-top:0;font-size:21px}label{display:block;font-weight:650;margin:10px 0 4px}input,select{font:inherit;padding:9px;border:1px solid #b8beb5;border-radius:7px;width:100%;background:white;color:var(--ink)}button{border:0;border-radius:8px;padding:10px 14px;background:var(--orange);color:white;font-weight:700;cursor:pointer}button.secondary{background:#e8e8df;color:var(--ink)}.scroll{overflow:auto}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f0eee5}.pill{display:inline-block;border-radius:99px;padding:3px 8px;font-size:12px;font-weight:700;background:#eee}.Must{background:#f9dfd3}.Should{background:#f8edb7}.Could{background:#dcebe0}.Won’t{background:#e5e5e5}.note{font-size:13px;color:#59645b}.score{font-size:28px;font-weight:800;color:var(--green)}.wbs{font-size:13px}.wbs details{border:1px solid var(--line);border-radius:8px;padding:8px;margin:6px 0}.wbs summary{font-weight:700;cursor:pointer}.footer{padding:15px;color:#60665f;font-size:12px}@media(max-width:800px){.grid{grid-template-columns:1fr}.wrap{padding:12px}}
+</style></head><body>
+<header><h1>Bendita Integración · Bloque A</h1><p>Artefacto computacional: priorización de requisitos y EDT/WBS de tres niveles</p></header>
+<main class="wrap">
+<div class="grid">
+<section class="panel"><h2>1. Matriz valor–esfuerzo</h2>
+<p class="note">Escala didáctica de 1 a 5. Puntúa el valor y el esfuerzo; el índice se calcula como valor ÷ esfuerzo. Las puntuaciones son propuestas para la exposición, no una validación empresarial.</p>
+<label for="req">Requisito / trabajo</label><input id="req" value="Guardar solicitud pendiente">
+<label for="mos">MoSCoW</label><select id="mos"><option>Must</option><option>Should</option><option>Could</option><option>Won’t</option></select>
+<div class="grid"><div><label for="value">Valor (1–5)</label><input id="value" type="number" min="1" max="5" value="5"></div><div><label for="effort">Esfuerzo (1–5)</label><input id="effort" type="number" min="1" max="5" value="3"></div></div>
+<label for="why">Justificación</label><input id="why" value="Es necesario para revisar solicitudes sin confirmar automáticamente">
+<p>Índice valor/esfuerzo: <span id="score" class="score">1.67</span></p><button id="add">Agregar a la tabla</button> <button id="reset" class="secondary">Restablecer ejemplo</button>
+<div class="scroll" style="margin-top:14px"><table><thead><tr><th>Trabajo</th><th>MoSCoW</th><th>V/E</th><th>Índice</th><th></th></tr></thead><tbody id="rows"></tbody></table></div>
+<p class="note">Interpretación: un índice alto ayuda a detectar valor relativo por unidad de esfuerzo, pero no incorpora por sí solo riesgos, dependencias, obligación normativa ni opinión del cliente.</p>
+</section>
+<section class="panel"><h2>2. Diccionario de la EDT</h2><p class="note">Explora los paquetes. La estructura muestra un ejemplo de 3 niveles y 15 paquetes de trabajo; debe revisarse contra el alcance definitivo antes de tratarla como línea aprobada.</p><div id="wbs" class="wbs"></div>
+</section>
+</div>
+<section class="panel" style="margin-top:18px"><h2>3. Comprobación de cobertura del alcance (regla del 100 %)</h2>
+<p>Marca cada grupo cuando el equipo haya comprobado que contiene todo el trabajo de ese entregable y no incluye trabajo duplicado o fuera del alcance.</p>
+<div id="checks"></div><p id="coverage" class="score">0 % revisado</p><p class="note">Esta comprobación registra revisión del equipo; no certifica por sí misma que el cliente haya aprobado el alcance.</p>
+</section>
+<div class="footer">Bendita Integración · Equipo 2 · 4°A BIS · Datos ilustrativos derivados del alcance actualizado al 18/10/2026. No contiene datos personales reales ni se conecta a producción.</div>
+</main>
+<script>
+const initial=[
+{name:"Guardar solicitud pendiente",mos:"Must",v:5,e:3,why:"Permite revisar antes de confirmar"},
+{name:"Aprobar/rechazar con rol autorizado",mos:"Must",v:5,e:4,why:"Conserva la decisión humana"},
+{name:"Búsqueda por nombre o celular",mos:"Should",v:4,e:2,why:"Facilita localizar clientes"},
+{name:"Consulta de menú",mos:"Should",v:3,e:2,why:"Apoya pedidos pick-up"},
+{name:"Animaciones decorativas",mos:"Could",v:1,e:2,why:"No es central para el objetivo"},
+{name:"Campañas automáticas",mos:"Won’t",v:1,e:5,why:"Fuera del alcance actual"}
+];
+let items=[...initial];
+const packages=[
+{title:"1. Bendita Integración",children:[
+{title:"1.1 Requisitos y diseño",children:[
+["1.1.1 Confirmar actores y permisos","Mapa de interesados y autorización manual definidos."],
+["1.1.2 Catálogo de requisitos","RF/RNF verificables y trazables al alcance."],
+["1.1.3 Historias y aceptación","Historias con criterios Dado/Cuando/Entonces."]
+]},
+{title:"1.2 Datos y API",children:[
+["1.2.1 Modelo PostgreSQL","Tablas y relaciones revisadas; pendiente_pedidos contemplada."],
+["1.2.2 Conexión y servicios","Acceso a datos separado de la interfaz."],
+["1.2.3 Validación de entradas","Campos requeridos y errores controlados."]
+]},
+{title:"1.3 Atención por WhatsApp",children:[
+["1.3.1 Flujo de reservación","Recopila datos y deja solicitud pendiente."],
+["1.3.2 Flujo de pedido pick-up","Recopila productos, cantidades, notas y hora solicitada."],
+["1.3.3 Respuestas de estado","No comunica confirmación antes de autorización."]
+]},
+{title:"1.4 Interfaz de escritorio",children:[
+["1.4.1 Módulo de clientes","Una búsqueda por nombre o celular."],
+["1.4.2 Calendario de reservaciones","Solo reservaciones; color según estado."],
+["1.4.3 Bandeja de pendientes","Acciones de revisar, aprobar o rechazar."]
+]},
+{title:"1.5 Calidad y entrega",children:[
+["1.5.1 Pruebas de aceptación","Casos normales, incompletos, duplicados y permisos."],
+["1.5.2 Revisión de seguridad","Credenciales fuera del código y acceso por rol."],
+["1.5.3 Documentación y demostración","README, evidencia y límites conocidos."]
+]}
+]};
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function calc(){let v=+document.querySelector('#value').value,e=+document.querySelector('#effort').value;v=Math.min(5,Math.max(1,v||1));e=Math.min(5,Math.max(1,e||1));document.querySelector('#score').textContent=(v/e).toFixed(2)}
+function renderRows(){document.querySelector('#rows').innerHTML=items.map((x,i)=>`<tr><td><b>${esc(x.name)}</b><br><span class="note">${esc(x.why)}</span></td><td><span class="pill ${esc(x.mos)}">${esc(x.mos)}</span></td><td>${x.v}/${x.e}</td><td>${(x.v/x.e).toFixed(2)}</td><td><button class="secondary" onclick="removeItem(${i})">Quitar</button></td></tr>`).join('')}
+function removeItem(i){items.splice(i,1);renderRows()}
+document.querySelector('#add').onclick=()=>{let name=document.querySelector('#req').value.trim();if(!name)return;items.push({name,mos:document.querySelector('#mos').value,v:+document.querySelector('#value').value,e:+document.querySelector('#effort').value,why:document.querySelector('#why').value});renderRows()};
+document.querySelector('#reset').onclick=()=>{items=[...initial];renderRows()};
+['value','effort'].forEach(id=>document.getElementById(id).addEventListener('input',calc));
+function renderWbs(nodes,depth=0){return nodes.map(n=>{if(n.children)return `<details ${depth===0?'open':''}><summary>${esc(n.title)}</summary>${renderWbs(n.children,depth+1)}</details>`;return `<details><summary>${esc(n[0])}</summary><p>${esc(n[1])}</p><p><b>Responsable:</b> equipo técnico por asignar · <b>Dependencia:</b> requisitos/acuerdos previos · <b>Aceptación:</b> evidencia verificable documentada.</p></details>`}).join('')}
+document.querySelector('#wbs').innerHTML=renderWbs(packages);
+const groupNames=["1.1 Requisitos y diseño","1.2 Datos y API","1.3 Atención por WhatsApp","1.4 Interfaz de escritorio","1.5 Calidad y entrega"];
+document.querySelector('#checks').innerHTML=groupNames.map((n,i)=>`<label style="font-weight:500"><input type="checkbox" class="cover" style="width:auto;margin-right:8px"> ${n}: ¿incluye todo el trabajo de este entregable sin duplicados ni alcance extra?</label>`).join('');
+function coverage(){let a=[...document.querySelectorAll('.cover')],n=a.filter(x=>x.checked).length;document.querySelector('#coverage').textContent=Math.round(n/a.length*100)+' % revisado'}
+document.querySelectorAll('.cover').forEach(x=>x.addEventListener('change',coverage));
+calc();renderRows();
+</script></body></html>
